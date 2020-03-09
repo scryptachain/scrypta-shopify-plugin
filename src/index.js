@@ -17,10 +17,10 @@ const container2 = document.createElement('div');
 container2.setAttribute('class', 'content-box__row');
 app.appendChild(container2);
 var request = new XMLHttpRequest();
-// var amountstring = "{{checkout.total_price | money}}"; --> NEEDED IN SHOPIFY
-// var checkoutID = "{{checkout.id}}"
-var amountstring = "€1,00"; // --> EMULATING ROW ABOVE
-var checkoutID = "1111222223";
+var amountstring = "{{checkout.total_price | money}}";
+var checkoutID = "{{checkout.id}}"
+//var amountstring = "€1,00"; // --> EMULATING ROW ABOVE
+//var checkoutID = "1111222223";
 var amountstring = amountstring.replace(',','.');
 var currencysymbol = amountstring.substring(0,1);
 var amount = parseFloat(amountstring.substring(1));
