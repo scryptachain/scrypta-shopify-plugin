@@ -19,7 +19,7 @@ app.appendChild(container2);
 var request = new XMLHttpRequest();
 // var amountstring = "{{checkout.total_price | money}}"; --> NEEDED IN SHOPIFY
 // var checkoutID = "{{checkout.id}}"
-var amountstring = "€10,00"; // --> EMULATING ROW ABOVE
+var amountstring = "€1,00"; // --> EMULATING ROW ABOVE
 var checkoutID = "1111222223";
 var amountstring = amountstring.replace(',','.');
 var currencysymbol = amountstring.substring(0,1);
@@ -39,11 +39,11 @@ function calculateCryptoAmount(){
     pricerequest.onload = async function () {
         var data = JSON.parse(this.response);
         var price = data.market_data.current_price[currency];
-        let addressResponse = await axios.get('https://idanodejs01.scryptachain.org/wallet/getnewaddress')
-        let PaymentAddress = addressResponse.data.address
         if (pricerequest.status >= 200 && pricerequest.status < 400) {
             var amountneeded = parseFloat(parseFloat(amount) / price).toFixed(8);
             amountneeded = amountneeded.toString();
+            let addressResponse = await axios.post('http://165.22.202.200:3000/gateway/request', { "asset": "LYRA", "amount": amountneeded.replace(',','.'), "notes": "Shopify order #" + checkoutID})
+            let PaymentAddress = addressResponse.data.address
             const p = document.createElement('h3');
             p.textContent = `Invia esattamente`;
             container3.appendChild(p);
@@ -54,13 +54,25 @@ function calculateCryptoAmount(){
             container3.appendChild(br);
             container3.appendChild(br);
             const qr= document.createElement('img');
-            qr.src = `https://chart.googleapis.com/chart?cht=qr&chl=${data.symbol}:` + window.paytoaddress + `%26amount=${amountneeded}&chs=300x300&chld=L|0`;
+            //qr.src = `https://chart.googleapis.com/chart?cht=qr&chl=${data.symbol}:` + window.paytoaddress + `%26amount=${amountneeded}&chs=300x300&chld=L|0`;
+            qr.src = addressResponse.data.qrcode
+            qr.width = "300"
             container3.appendChild(qr);
             container3.appendChild(br);
             container3.appendChild(br);
             const paddr = document.createElement('p');
             paddr.textContent = PaymentAddress;
             container3.appendChild(paddr);
+            var isChecking = true
+            setInterval(async function (){
+                if(isChecking === true){
+                    let check = await axios.post('http://165.22.202.200:3000/gateway/check', { "asset": "LYRA", "address": PaymentAddress })
+                    if(check.data.success === true){
+                        alert('Pagamento ricevuto correttamente, puoi chiudere questa pagina!')
+                        isChecking = false
+                    }
+                }
+            }, 5000)
         } else {
             const errorMessage = document.createElement('p');
             errorMessage.textContent = `Scusa, qualcosa non sta funzionanedo`;
