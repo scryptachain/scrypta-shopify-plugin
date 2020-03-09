@@ -42,7 +42,7 @@ function calculateCryptoAmount(){
         if (pricerequest.status >= 200 && pricerequest.status < 400) {
             var amountneeded = parseFloat(parseFloat(amount) / price).toFixed(8);
             amountneeded = amountneeded.toString();
-            let addressResponse = await axios.post('http://165.22.202.200:3000/gateway/request', { "asset": "LYRA", "amount": amountneeded.replace(',','.'), "notes": "Shopify order #" + checkoutID})
+            let addressResponse = await axios.post('https://gateway.scryptachain.org/gateway/request', { "asset": "LYRA", "amount": amountneeded.replace(',','.'), "notes": "Shopify order #" + checkoutID})
             let PaymentAddress = addressResponse.data.address
             const p = document.createElement('h3');
             p.textContent = `Invia esattamente`;
@@ -63,10 +63,15 @@ function calculateCryptoAmount(){
             const paddr = document.createElement('p');
             paddr.textContent = PaymentAddress;
             container3.appendChild(paddr);
+            const waitaddr = document.createElement('p');
+            container3.appendChild(br);
+            container3.appendChild(br);
+            waitaddr.textContent = 'Attendi qualche minuto per la conferma.';
+            container3.appendChild(waitaddr);
             var isChecking = true
             setInterval(async function (){
                 if(isChecking === true){
-                    let check = await axios.post('http://165.22.202.200:3000/gateway/check', { "asset": "LYRA", "address": PaymentAddress })
+                    let check = await axios.post('https://gateway.scryptachain.org/gateway/check', { "asset": "LYRA", "address": PaymentAddress })
                     if(check.data.success === true){
                         alert('Pagamento ricevuto correttamente, puoi chiudere questa pagina!')
                         isChecking = false
